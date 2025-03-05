@@ -1,6 +1,6 @@
 from django.contrib.admin import User
 from .models import HighestScore 
-from django.serializer import serializers
+from rest_framework import serializers
 
 class UserSerializer(serializers.ModelSerializer):
     # Add a write-only password field
