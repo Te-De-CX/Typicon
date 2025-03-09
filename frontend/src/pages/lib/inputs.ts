@@ -11,49 +11,55 @@ const generateWords = (count: number): string[] => {
   
   const words = generateWords(1000);
 
-export const useTypingGame = () => {
-  const [currentWord, setCurrentWord] = useState<string>('');
-  const [userInput, setUserInput] = useState<string>('');
-  const [score, setScore] = useState<number>(0);
-  const [isCorrect, setIsCorrect] = useState<boolean>(false);
-
-  // Function to pick a random word from the list
-  const pickRandomWord = useCallback(() => {
-    const randomIndex = Math.floor(Math.random() * words.length);
-    setCurrentWord(words[randomIndex]);
-  }, []);
-
-  // Handle input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const input = e.target.value;
-    setUserInput(input);
-
-    // Check if the input matches the current word
-    setIsCorrect(input.trim() === currentWord);
-  };
-
-  // Handle spacebar press to change the word
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === ' ') {
-      e.preventDefault(); // Prevent default spacebar behavior
-
-      if (userInput.trim() !== '') {
-        if (isCorrect) {
-          setScore((prevScore) => prevScore + 1);
+  export const useTypingGame = () => {
+    const [currentWord, setCurrentWord] = useState<string>('');
+    const [userInput, setUserInput] = useState<string>('');
+    const [score, setScore] = useState<number>(0);
+    const [isCorrect, setIsCorrect] = useState<boolean>(false);
+  
+    // Function to pick a random word from the list
+    const pickRandomWord = useCallback(() => {
+      const randomIndex = Math.floor(Math.random() * words.length);
+      setCurrentWord(words[randomIndex]);
+    }, []);
+  
+    // Handle input change
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const input = e.target.value;
+      setUserInput(input);
+  
+      // Check if the input matches the current word
+      setIsCorrect(input.trim() === currentWord);
+    };
+  
+    // Handle spacebar press to change the word
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === ' ') {
+        e.preventDefault(); // Prevent default spacebar behavior
+  
+        if (userInput.trim() !== '') {
+          if (isCorrect) {
+            setScore((prevScore) => prevScore + 1);
+          }
+          setUserInput('');
+          pickRandomWord();
         }
-        setUserInput('');
-        pickRandomWord();
       }
-    }
+    };
+  
+    // Check if the current input matches the corresponding letters in the word
+    const isInputIncorrect = (index: number): boolean => {
+      return userInput.length > index && userInput[index] !== currentWord[index];
+    };
+  
+    return {
+      currentWord,
+      userInput,
+      score,
+      isCorrect,
+      pickRandomWord,
+      handleInputChange,
+      handleKeyDown,
+      isInputIncorrect, // Add this function to check for incorrect letters
+    };
   };
-
-  return {
-    currentWord,
-    userInput,
-    score,
-    isCorrect,
-    pickRandomWord,
-    handleInputChange,
-    handleKeyDown,
-  };
-};

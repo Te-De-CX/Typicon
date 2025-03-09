@@ -33,58 +33,100 @@
 
 // export default Page;
 
-import React from "react";
+import React, { useState, useEffect }  from "react";
 import LeaderBoard from "../tags/LeaderBoard";
 import Clocks from "../tags/Clock";
 import TimerComponent from "../components/Timer";
 import Header from "../tags/Header";
 import { useTypingGame } from "../lib/inputs";
-
+import { Timer } from "../lib/timer";
 
 const Page: React.FC = () => {
 
-    const {
-        currentWord,
-        userInput,
-        score,
-        isCorrect,
-        pickRandomWord,
-        handleInputChange,
-        handleKeyDown,
-      } = useTypingGame();
+    const [time, setTime] = useState("01:00:00"); // Initial time display
+      const [timer, setTimer] = useState<Timer | null>(null);
+    
+      // Initialize the timer
+      useEffect(() => {
+        const newTimer = new Timer(setTime);
+        setTimer(newTimer);
+    
+        return () => {
+          newTimer.stop(); // Cleanup on unmount
+        };
+      }, []);
+    
+      // Start the timer
+      const handleStart = () => {
+        if (timer) {
+          timer.start();
+        }
+      };
+    
+      // Stop the timer
+      const handleStop = () => {
+        if (timer) {
+          timer.stop();
+        }
+      };
+    
+      // Reset the timer
+      const handleReset = () => {
+        if (timer) {
+          timer.reset();
+        }
+      };
 
-      React.useEffect(() => {
-        pickRandomWord();
-      }, [pickRandomWord]);
+  const {
+    currentWord,
+    userInput,
+    score,
+    isCorrect,
+    pickRandomWord,
+    handleInputChange,
+    handleKeyDown,
+    isInputIncorrect,
+  } = useTypingGame();
 
-    //   console.log(currentWord)
+  React.useEffect(() => {
+    pickRandomWord();
+  }, [pickRandomWord]);
 
-    return (
-        <>
-        <section>
-            <Header />
-            {/* {Math.random()} */}
-            <div>
-                <div className="flex items-center justify-center py-5 px-10 bg white text-4xl font-semibold rounded-[2rem] bg-white">
-                    <p>{currentWord}</p>
-                </div>
-                <input
-                    type="text"
-                    value={userInput}
-                    onChange={handleInputChange}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Type the word here"
-                    className="w-full py-5 text-xl bg-white border-black border-[2px] font-semibold my-2 rounded-2xl px-5"
-                />
-                {isCorrect && <p style={{ color: 'green' }}>Correct!</p>}
-                <p>Score: {score}</p>
-            </div>
-            <TimerComponent />
-
-        </section>
-        
-        </>
-    )
-}
+  return (
+    <>
+      <section>
+        <Header />
+        <div>
+          <div className="flex items-center justify-center py-5 px-10 bg-white text-4xl font-semibold rounded-[2rem]">
+            {/* Render the current word with conditional styling */}
+            {currentWord.split('').map((letter, index) => (
+              <span
+                key={index}
+                style={{
+                  color: isInputIncorrect(index) ? 'red' : 'black', // Turn red if the letter is incorrect
+                }}
+              >
+                {letter}
+              </span>
+            ))}
+          </div>
+          <input
+            type="text"
+            value={userInput}
+            onChange={handleInputChange handleStart}
+            onKeyDown={handleKeyDown}
+            placeholder="Type the word here"
+            className="w-full py-5 text-xl bg-white border-black border-[2px] font-semibold my-2 rounded-2xl px-5"
+          />
+          {isCorrect && <p style={{ color: 'green' }}>Correct!</p>}
+          <p>Score: {score}</p>
+        </div>
+        <div className="text-6xl font-mono bg-white p-6 rounded-lg shadow-lg">
+        {time}
+      </div>
+      </section>
+    </>
+  );
+};
 
 export default Page;
